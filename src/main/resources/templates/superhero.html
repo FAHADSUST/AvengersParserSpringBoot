@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Superhero Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-3">
+    <h2>Superhero Dashboard</h2>
+    <form method="get" action="/superhero">
+        <div class="form-group">
+            <label for="hero">Select Superhero:</label>
+            <select class="form-control" id="hero" name="hero">
+                <option value="">-- Select a superhero --</option>
+                <option th:each="h : ${heroes}" th:value="${h}" th:text="${h}"
+                        th:selected="${h.equals(selectedHero)}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Load Table</button>
+    </form>
+
+    <div th:if="${table}">
+        <h4 th:text="'Table for ' + ${selectedHero}"></h4>
+        <table class="table table-bordered">
+
+            <tbody>
+            <tr th:each="row, rowStat : ${table}">
+                <td th:each="cell, colStat : ${row}">
+                    <a href="#"
+                       th:if="${rowStat.index > 0 and colStat.index > 0 and cell != null and cell != ''}"
+                       th:text="${cell}"
+                       onclick="showChart()">
+                    </a>
+                    <span th:if="${rowStat.index == 0 or colStat.index == 0}" th:text="${cell}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="btn btn-secondary" href="/">Back to Home</a>
+</div>
+
+<!-- Modal for Trending Chart -->
+<div class="modal fade" id="chartModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Trending Chart</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <canvas id="chartCanvas" width="300" height="150" style="border:1px solid #ccc;"></canvas>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="thumbUp()">Thumb Up (<span id="likeCount">0</span>)</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JavaScript for modal and chart functionality -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+    var likeCount = 0;
+    function showChart() {
+        var canvas = document.getElementById("chartCanvas");
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var months = 10;
+        var barWidth = canvas.width / (months * 2);
+        for (var i = 0; i < months; i++) {
+            var value = Math.floor(Math.random() * canvas.height);
+            ctx.fillStyle = "#4CAF50";
+            ctx.fillRect(i * 2 * barWidth, canvas.height - value, barWidth, value);
+        }
+        $('#chartModal').modal('show');
+    }
+    function closeModal() {
+        $('#chartModal').modal('hide');
+    }
+    function thumbUp() {
+        likeCount++;
+        document.getElementById("likeCount").innerText = likeCount;
+    }
+</script>
+</body>
+</html>
